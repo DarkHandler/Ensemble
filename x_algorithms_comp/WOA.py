@@ -7,12 +7,14 @@ Created on Mon May 16 14:19:49 2016
 @modified by: Sebastian Medina
 """
 import random
-import numpy
+import numpy as np
 import math
 from solution import solution
 import time
 
 import OptModel.teamSizeModel as teamSizeModel
+
+import metrics.metrics as mtclass
 
 class WOA:
     def __init__(self, objf, lb, ub, dim, SearchAgents_no, Max_iter):
@@ -24,6 +26,8 @@ class WOA:
         self.Max_iter = Max_iter
 
     def optimize(self):
+
+        metrics = mtclass.Metrics() #objeto de metricas
 
         # dim=30
         # SearchAgents_no=50
@@ -40,22 +44,23 @@ class WOA:
             self.dim = math.floor(self.dim/3) #no es necesario debido a que si no se estaran creando obligatoriamente variables con rango 3 a 17 
 
         # initialize position vector and score for the leader
-        Leader_pos = numpy.zeros(self.dim)
+        Leader_pos = np.zeros(self.dim)
         Leader_score = float("inf")  # change this to -inf for maximization problems
 
         # Initialize the positions of search agents
         if (self.objf.__name__ != "teamSizeModel"):
-            Positions = numpy.zeros((self.SearchAgents_no, self.dim))
+            Positions = np.zeros((self.SearchAgents_no, self.dim))
             for i in range(self.dim):
                 Positions[:, i] = (
-                    numpy.random.uniform(0, 1, self.SearchAgents_no) * (self.ub[i] - self.lb[i]) + self.lb[i]
+                    np.random.uniform(0, 1, self.SearchAgents_no) * (self.ub[i] - self.lb[i]) + self.lb[i]
                 )
         else:
             Positions = teamSizeModel.initPopTeamSizeModel(self.SearchAgents_no, self.lb[0], self.ub[0], proyectSize, self.dim)
-            Positions = numpy.array(Positions)
+            Positions = np.array(Positions)
 
         # Initialize convergence
-        convergence_curve = numpy.zeros(self.Max_iter)
+        convergence_curve = np.zeros(self.Max_iter)
+        Percent_explorations = np.zeros(self.Max_iter)
 
         ############################
         s = solution()
@@ -76,11 +81,11 @@ class WOA:
                 if (self.objf.__name__ == "teamSizeModel"):
                     Positions = list(Positions)
                     teamSizeModel.checkBoundaries(Positions[i], proyectSize, self.lb[0], self.ub[0])
-                    Positions = numpy.array(Positions)
+                    Positions = np.array(Positions)
                 else:
                     # Positions[i,:]=checkBounds(Positions[i,:],lb,ub)
                     for j in range(self.dim):
-                        Positions[i, j] = numpy.clip(Positions[i, j], self.lb[j], self.ub[j])
+                        Positions[i, j] = np.clip(Positions[i, j], self.lb[j], self.ub[j])
 
                 # Calculate objective function for each search agent
                 fitness = self.objf(Positions[i, :])
@@ -98,6 +103,10 @@ class WOA:
 
             # a2 linearly decreases from -1 to -2 to calculate t in Eq. (3.12)
             a2 = -1 + t * ((-1) / self.Max_iter)
+
+            ## --------- DIVERSITY ZONE ----------
+            metrics.calculateDiversity(Positions, self.SearchAgents_no, self.dim, self.objf)
+            Percent_explorations[t] = metrics.percent_exploration
 
             # Update the Position of search agents
             for i in range(0, self.SearchAgents_no):
@@ -148,6 +157,7 @@ class WOA:
         s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
         s.executionTime = timerEnd - timerStart
         s.convergence = convergence_curve
+        s.percent_explorations = Percent_explorations
         s.optimizer = "WOA"
         s.objfname = self.objf.__name__
         s.best = Leader_score

@@ -233,7 +233,6 @@ class Metrics:
 
 
   # METRICAS Dimension-wise 
-
   def obtenerDivDimensionWise(self, Pobla, n_num_agents, m_num_var): #este trabaja con el valor anterior a modo de comparacion
 
     Array_each_x_sub_j = np.mean(Pobla, axis=0)
@@ -255,8 +254,7 @@ class Metrics:
     return div
 
 
-  # -------- CALCULO DE TODAS LAS METRICAS ----------------
-
+  # -------- CALCULATE ALL METRICS ----------------
   def calculateDiversity(self, Positions, SearchAgents_no, dim, objf):
     self.diversidadHamming = self.obtenerDiversidadHammingPorPareja(Positions)
 
@@ -288,6 +286,7 @@ class Metrics:
 
   #----------- SHOW METRICS ----------------
   def showMetrics(self):
+    print("\n\nBeg----------------------------------------------------------")
     print(f'Diversidad de Hamming pareja: {self.diversidadHamming}')
     print(f'Diversidad de Dice: {self.diversidad_Dice}')
     print(f'Diversidad de Rogerstanimoto: {self.diversidad_Rogerstanimoto}')
@@ -299,14 +298,13 @@ class Metrics:
     print(f'Diversidad de Yule: {self.diversidad_Yule}')
     print(f'Diversidad de Dim-wise: {self.diversidadDimensionWise}')
 
-    print("porcentaje exploracion:", self.percent_exploration)
-    print("porcentaje explotacion:", self.percent_explotation)
-
+    print(f'Porcentaje exploracion: {self.percent_exploration}')
+    print(f'Porcentaje explotacion: {self.percent_explotation}')
+    print("F----------------------------------------------------A>")
 
 
   # -------------------- STORE METRICS ---------------
-
-  def storeMetricsIn(self, filename, l, fitness, searchAgents_no, proyectSize):
+  def storeMetricsIn(self, filename, l, fitness, searchAgents_no, proyectSize, minPercentExT):
     if not os.path.exists(filename):
       header = "iteration,fitness,searchAgents_no,proyectSize,percent_exploration,percent_explotation,diversidadHamming,diversidad_Dice,diversidad_Jaccard,diversidad_Kulsinski,diversidad_Rogerstanimoto,diversidad_Russellrao,diversidad_Sokalmichener,diversidad_Yule,diversidad_Sokalsneath,diversidadDimensionWise,method\n"
       f = open(filename, "a")
@@ -314,17 +312,16 @@ class Metrics:
     else:
       f = open(filename, "a")
 
-    if self.percent_explotation < 60: #si es menor se debe realizar explotacion --- #para nuestro caso deberemos utilizar 60% debido a que el problema de las métricas no llegan a los 90
-      method = "explotation" #explotation para que suba su porcentaje
+    if self.percent_explotation < minPercentExT: #si es menor al porcentaje minimo de explotation se debe realizar explotacion  
+    #para nuestro caso en el primer exp, se uso un 60% debido a que el resultado de las métricas no llegan a los 90 de exT
+      method = "explotation" #explotation para que suba su porcentaje de exploration acercandose a 10
     else:
       method = "exploration" #exploration para que baje el porcentaje de explotation acercandose a 90
 
-    
     #format --> in one row --> iteration, fitness, searchAgents_no, proyectSize, percent_exploration, percent_explotation, diversidadHamming, diversidad_Dice, diversidad_Jaccard, 
                               #diversidad_Kulsinski, diversidad_Rogerstanimoto, diversidad_Russellrao, diversidad_Sokalmichener, diversidad_Yule, 
                               #diversidad_Sokalsneath, diversidadDimensionWise, method (label)
     f.write(str(l)+","+str(fitness)+","+str(searchAgents_no)+","+str(proyectSize)+","+str(self.percent_exploration)+","+str(self.percent_explotation)+","+str(self.diversidadHamming)+","+str(self.diversidad_Dice)+","+str(self.diversidad_Jaccard)+","+str(self.diversidad_Kulsinski)+","+str(self.diversidad_Rogerstanimoto)+","+str(self.diversidad_Russellrao)+","+str(self.diversidad_Sokalmichener)+","+str(self.diversidad_Yule)+","+str(self.diversidad_Sokalsneath)+","+str(self.diversidadDimensionWise)+","+method+"\n")
-      
     f.close()
 
 

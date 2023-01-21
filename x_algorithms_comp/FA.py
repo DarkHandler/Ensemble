@@ -18,13 +18,14 @@ Created on Sun May 29 00:49:35 2016
 #% by Xin-She Yang (Cambridge University) Copyright @2009   %
 #% -------------------------------------------------------- %
 
-import numpy
 import math
 import time
 from solution import solution
 
 import numpy as np
 import OptModel.teamSizeModel as teamSizeModel
+
+import metrics.metrics as mtclass
 
 class FA:
     def __init__(self, objf, lb, ub, dim, n, MaxGeneration):
@@ -44,6 +45,8 @@ class FA:
 
 
     def optimize(self):
+
+        metrics = mtclass.Metrics() #objeto de metricas
 
         # General parameters
 
@@ -66,26 +69,28 @@ class FA:
         if not isinstance(self.ub, list):
             self.ub = [self.ub] * self.dim
 
-        zn = numpy.ones(self.n)
+        zn = np.ones(self.n)
         zn.fill(float("inf"))
 
         # ns(i,:)=Lb+(Ub-Lb).*rand(1,d);
 
         # Initialize the population/solutions
         if (self.objf.__name__ != "teamSizeModel"):
-            ns = numpy.zeros((self.n, self.dim))
+            ns = np.zeros((self.n, self.dim))
             for i in range(self.dim):
-                ns[:, i] = numpy.random.uniform(0, 1, self.n) * (self.ub[i] - self.lb[i]) + self.lb[i]
+                ns[:, i] = np.random.uniform(0, 1, self.n) * (self.ub[i] - self.lb[i]) + self.lb[i]
         else:
             ns = teamSizeModel.initPopTeamSizeModel(self.n, self.lb[0], self.ub[0], proyectSize, self.dim)
             ns = np.array(ns)
         
-        Lightn = numpy.ones(self.n)
+        Lightn = np.ones(self.n)
         Lightn.fill(float("inf"))
 
         # [ns,Lightn]=init_ffa(n,d,Lb,Ub,u0)
 
         convergence = []
+        Percent_explorations = np.zeros(self.MaxGeneration)
+
         s = solution()
 
         print('FA is optimizing  "' + self.objf.__name__ + '"')
@@ -108,10 +113,14 @@ class FA:
                 zn[i] = self.objf(ns[i, :])
                 Lightn[i] = zn[i]
 
+            ## --------- DIVERSITY ZONE ----------
+            metrics.calculateDiversity(ns, self.n, self.dim, self.objf)
+            Percent_explorations[k] = metrics.percent_exploration
+
             # Ranking fireflies by their light intensity/objectives
 
-            Lightn = numpy.sort(zn)
-            Index = numpy.argsort(zn)
+            Lightn = np.sort(zn)
+            Index = np.argsort(zn)
             ns = ns[Index, :]
 
             # Find the current best
@@ -129,20 +138,20 @@ class FA:
             scale = []
             for b in range(self.dim):
                 scale.append(abs(self.ub[b] - self.lb[b]))
-            scale = numpy.array(scale)
+            scale = np.array(scale)
             for i in range(0, self.n):
                 # The attractiveness parameter beta=exp(-gamma*r)
                 for j in range(0, self.n):
-                    r = numpy.sqrt(numpy.sum((ns[i, :] - ns[j, :]) ** 2))
+                    r = np.sqrt(np.sum((ns[i, :] - ns[j, :]) ** 2))
                     # r=1
                     # Update moves
                     if Lightn[i] > Lighto[j]:  # Brighter and more attractive
                         beta0 = 1
                         beta = (beta0 - betamin) * math.exp(-gamma * r ** 2) + betamin
-                        tmpf = alpha * (numpy.random.rand(self.dim) - 0.5) * scale
+                        tmpf = alpha * (np.random.rand(self.dim) - 0.5) * scale
                         ns[i, :] = ns[i, :] * (1 - beta) + nso[j, :] * beta + tmpf
 
-            # ns=numpy.clip(ns, lb, ub)
+            # ns=np.clip(ns, lb, ub)
 
             convergence.append(fbest)
 
@@ -159,6 +168,7 @@ class FA:
         s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
         s.executionTime = timerEnd - timerStart
         s.convergence = convergence
+        s.percent_explorations = Percent_explorations
         s.optimizer = "FA"
         s.objfname = self.objf.__name__
 

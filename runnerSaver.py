@@ -5,6 +5,7 @@ import time
 import os
 import graphers.plot_convergence as conv_plot
 import graphers.plot_boxplot as box_plot
+import graphers.plot_Exr_Ext as percntexRexT_plot
 from pathlib import Path
 
 #INTERNAL LIBRARIES
@@ -18,7 +19,7 @@ import x_algorithms_comp.PSO as modulePSO
 import x_algorithms_comp.WOA as moduleWOA
 import x_algorithms_comp.CSA as moduleCSA
 
-import GWOEL.ML_model.ML_classifiers as modML
+import GWOEL.ML_model.ML_classifiers as classifiers
 
 import OptModel.teamSizeModel as moduleTSM
 import OptModel.benchmark_functions as bf
@@ -33,16 +34,72 @@ class SingletonMeta(type):
 
 
 class RunnerSingleton(metaclass=SingletonMeta):
+    
+    def createDatasetMetricsGWO(self): #Paso 1 para realizar experimento: GENERAR DATASET CON METRICAS DE GWO 
+        adapParam = "Adaptative Parameter"
+        GAop = "GAOperators"
+        saveMetrics = True
+        minPercentExT = 70 #minimun percent of ExploTation
+        fileNameMetrics = "metrics_results_" + str(minPercentExT) + ".txt"
 
-    def selector(self, algo, func_details, popSize, Iter):
+        print("-----INICIO-----")
+        #6 lobos y 250
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 6, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 6, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 6, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 6, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 6, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 6, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 6, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 6, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+
+        #12 lobos y 250
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 12, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 12, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 12, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 12, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 12, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 12, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 12, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 12, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+
+
+        #6 lobos y 500
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 6, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 6, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 6, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 6, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 6, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 6, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 6, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 6, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+
+        #12 lobos y 500
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 12, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 12, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 12, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 12, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 12, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 12, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 12, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 12, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        print("-----FIN-----")
+
+
+
+    def selector(self, algo, func_details, popSize, Iter, modelEL):
         function_name = func_details[0]
         lb = func_details[1]
         ub = func_details[2]
         dim = func_details[3]
         if function_name == "teamSizeModel":
-            optModel = moduleTSM
+            optModel = moduleTSM #assign Team Size Model
         else:
-            optModel = bf
+            optModel = bf #assign the benchmark functions
 
         if algo == "PSO":
             x = modulePSO.PSO(getattr(optModel, function_name), lb, ub, dim, popSize, Iter).optimize()
@@ -51,18 +108,23 @@ class RunnerSingleton(metaclass=SingletonMeta):
         elif algo == "FA":
             x = moduleFA.FA(getattr(optModel, function_name), lb, ub, dim, popSize, Iter).optimize()
         elif algo == "GWO":
-            x = moduleGWO.GWO(getattr(optModel, function_name), lb, ub, dim, popSize, Iter, "original").optimize()
+            #adapParam = "Adaptative Parameter"
+            #GAop = "GAOperators"
+            ori = "original"
+            x = moduleGWO.GWO(getattr(optModel, function_name), lb, ub, dim, popSize, Iter, ori).optimize(False, None, -1) #None is the param fileNameMetrics
         elif algo == "WOA":
             x = moduleWOA.WOA(getattr(optModel, function_name), lb, ub, dim, popSize, Iter).optimize()
         elif algo == "CSA":
             x = moduleCSA.CSA(getattr(optModel, function_name), lb, ub, dim, popSize, Iter).optimize()
         elif algo == "GWOEL":
-            modelEL = modML.ModuleEL().loadELModel()    #cargar el Ensemble Learning model
+            if type(modelEL) == int: # if isn't a classifiers.ModuleEL class, initialize it just one time
+                modelEL = classifiers.ModuleEL("metrics_results_70.txt", "modelEL_70").getELModel()    #cargar el Ensemble Learning Model
+                
             x = moduleGWOEL.GWOEL(getattr(optModel, function_name), lb, ub, dim, popSize, Iter, modelEL).optimize()
         elif algo == "DE":
             x = moduleDE.DE(getattr(optModel, function_name), lb, ub, dim, popSize, Iter).optimize()
         else:
-            return null
+            return None
         return x
 
 
@@ -110,12 +172,17 @@ class RunnerSingleton(metaclass=SingletonMeta):
 
         Flag = False
         Flag_details = False
+        FlagPer = False #plotPercent
+        Flag_details_per = False #plotPercent
 
-        # CSV Header for for the cinvergence
+        # CSV Header for for the convergence
         CnvgHeader = []
 
         results_directory = time.strftime("%Y-%m-%d-%H-%M-%S") + "/"
         Path(results_directory).mkdir(parents=True, exist_ok=True)
+
+        #Variable to save permanentebly and used only when GWOEL is setted
+        modelEL = -1
 
         for l in range(0, Iterations):
             CnvgHeader.append("Iter" + str(l + 1))
@@ -123,11 +190,13 @@ class RunnerSingleton(metaclass=SingletonMeta):
         for i in range(0, len(optimizer)):
             for j in range(0, len(objectivefunc)):
                 convergence = [0] * NumOfRuns
+                percent_explorations = [0] * NumOfRuns
                 executionTime = [0] * NumOfRuns
                 for k in range(0, NumOfRuns):
                     func_details = bf.getFunctionDetails(objectivefunc[j])
-                    x = self.selector(optimizer[i], func_details, PopulationSize, Iterations)
+                    x = self.selector(optimizer[i], func_details, PopulationSize, Iterations, modelEL)
                     convergence[k] = x.convergence
+
                     optimizerName = x.optimizer
                     objfname = x.objfname
                     if Export_details == True:
@@ -148,6 +217,27 @@ class RunnerSingleton(metaclass=SingletonMeta):
                             )
                             writer.writerow(a)
                         out.close()
+
+                        #SAVE PERCENTEGE EXPLORATION EXPLOTATION
+                        percent_explorations[k] = x.percent_explorations
+                        
+                        ExportToFile = results_directory + "experiment_eReT_det.csv"
+                        with open(ExportToFile, "a", newline="\n") as out:
+                            writer = csv.writer(out, delimiter=",")
+                            if (
+                                Flag_details_per == False
+                            ):  # just one time to write the header of the CSV file
+                                header = numpy.concatenate(
+                                    [["Optimizer", "objfname"], CnvgHeader]
+                                )
+                                writer.writerow(header)
+                                Flag_details_per = True  # at least one experiment
+                            a = numpy.concatenate(
+                                [[x.optimizer, x.objfname], x.percent_explorations]
+                            )
+                            writer.writerow(a)
+                        out.close()
+
 
                 if Export == True:
                     ExportToFile = results_directory + "experiment.csv"
@@ -173,11 +263,38 @@ class RunnerSingleton(metaclass=SingletonMeta):
                         writer.writerow(a)
                     out.close()
 
+                    #SAVE SUMMARY OF ALL RUNS: PERCENTEGE EXPLORATION EXPLOTATION
+                    ExportToFile = results_directory + "experiment_sumry_eReT.csv"
+
+                    with open(ExportToFile, "a", newline="\n") as out:
+                        writer = csv.writer(out, delimiter=",")
+                        if (
+                            FlagPer == False
+                        ):  # just one time to write the header of the CSV file
+                            header = numpy.concatenate(
+                                [["Optimizer", "objfname"], CnvgHeader]
+                            )
+                            writer.writerow(header)
+                            FlagPer = True
+
+                        avgPercenteReT = numpy.around(
+                            numpy.mean(percent_explorations, axis=0, dtype=numpy.float64), decimals=2
+                        ).tolist()
+                        a = numpy.concatenate(
+                            [[optimizerName, objfname], avgPercenteReT]
+                        )
+                        writer.writerow(a)
+                    out.close()
+                
+
         if Export_convergence == True:
             conv_plot.run(results_directory, optimizer, objectivefunc, Iterations)
 
         if Export_boxplot == True:
             box_plot.run(results_directory, optimizer, objectivefunc, Iterations)
+
+        #export plot
+        percntexRexT_plot.run(results_directory, optimizer, objectivefunc, Iterations)
 
         if Flag == False:  # Faild to run at least one experiment
             print(

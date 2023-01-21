@@ -3,6 +3,7 @@
 Created on Tue May 17 17:06:19 2016
 
 @author: Hossam Faris
+modief by: Sebastian Medina
 """
 
 
@@ -11,6 +12,7 @@ class solution:
         self.best = 0
         self.bestIndividual = []
         self.convergence = []
+        self.percent_explorations = [] #debo rellenarlo
         self.optimizer = ""
         self.objfname = ""
         self.startTime = 0

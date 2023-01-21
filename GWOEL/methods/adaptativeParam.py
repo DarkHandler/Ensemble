@@ -69,10 +69,15 @@ def adaptativeControlParameter_a_UpdateMethod(t, T, SearchAgents_no, Positions, 
     a_r = 2.0
     a_t = T/2
     a_s = -0.5
+    ans = 0 #init
     
     r5 = random.random()
     a_0 = 0.5 * r5 * (1 - t/T) * math.sin(T - t)
-    a_b = a_s + ( a_r / ( 1 + math.exp(a_t * ( (2 * (t/T)) - 1)) ) ) 
+    try:
+        ans = math.exp(a_t * ( (2 * (t/T)) - 1))
+    except OverflowError:
+        ans = float('inf')
+    a_b = a_s + ( a_r / ( 1 + ans ) ) 
     a_a = a_0 + a_b
 
     updatePositionSearchAgents(a_a, SearchAgents_no, T, Positions, t, Alpha_pos, Delta_pos, Beta_pos, function_name)

@@ -1,11 +1,12 @@
 import random
-import numpy
 import time
 from solution import solution
 import math
 
 import numpy as np
 import OptModel.teamSizeModel as teamSizeModel
+
+import metrics.metrics as mtclass
 
 """
 Created on Thu May 26 02:00:55 2016
@@ -30,6 +31,8 @@ class DE:
 
     def optimize(self):
 
+        metrics = mtclass.Metrics() #objeto de metricas
+
         mutation_factor = 0.5
         crossover_ratio = 0.7
         stopping_func = None
@@ -51,7 +54,7 @@ class DE:
         # initialize population
         population = []
 
-        population_fitness = numpy.array([float("inf") for _ in range(self.PopSize)])
+        population_fitness = np.array([float("inf") for _ in range(self.PopSize)])
         
         if (self.objf.__name__ != "teamSizeModel"):
             for p in range(self.PopSize):
@@ -63,7 +66,7 @@ class DE:
                 population.append(sol)
         else: 
             population = teamSizeModel.initPopTeamSizeModel(self.PopSize, self.lb[0], self.ub[0], proyectSize, self.dim)
-        population = numpy.array(population)
+        population = np.array(population)
         
         # calculate fitness for all the population
         for i in range(self.PopSize):
@@ -76,7 +79,9 @@ class DE:
                 s.best = fitness
                 s.leader_solution = population[i, :]
 
-        convergence_curve = numpy.zeros(self.iters)
+        convergence_curve = np.zeros(self.iters)
+        Percent_explorations = np.zeros(self.iters)
+
         # start work
         print('DE is optimizing  "' + self.objf.__name__ + '"')
 
@@ -117,7 +122,7 @@ class DE:
                 if (self.objf.__name__ == "teamSizeModel"):
                     teamSizeModel.checkBoundaries(mutant_sol, proyectSize, self.lb[0], self.ub[0])
                 else:
-                    mutant_sol = numpy.clip(mutant_sol, self.lb, self.ub)
+                    mutant_sol = np.clip(mutant_sol, self.lb, self.ub)
 
                 # calc fitness
                 mutant_fitness = self.objf(mutant_sol)
@@ -133,6 +138,9 @@ class DE:
                         s.best = mutant_fitness
                         s.leader_solution = mutant_sol
 
+            ## --------- DIVERSITY ZONE ----------
+            metrics.calculateDiversity(population, self.PopSize, self.dim, self.objf)
+            Percent_explorations[t] = metrics.percent_exploration
 
             convergence_curve[t] = s.best
             #if t % 1 == 0:
@@ -146,6 +154,7 @@ class DE:
         s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
         s.executionTime = timerEnd - timerStart
         s.convergence = convergence_curve
+        s.percent_explorations = Percent_explorations
         s.optimizer = "DE"
         s.objfname = self.objf.__name__
 

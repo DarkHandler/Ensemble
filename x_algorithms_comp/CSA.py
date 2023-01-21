@@ -21,6 +21,8 @@ import math
 
 import OptModel.teamSizeModel as teamSizeModel
 
+import metrics.metrics as mtclass
+
 class CSA:
 
     def __init__(self, objf, lb, ub, dim, population_size, Max_iter):
@@ -87,6 +89,9 @@ class CSA:
 
     # Function: Crow Search Algorithm
     def optimize(self):
+
+        metrics = mtclass.Metrics() #objeto de metricas
+        
         #initial values
         ap = 0.02
         fL = 0.02
@@ -109,6 +114,7 @@ class CSA:
 
         # Initialize convergence
         convergence_curve = np.zeros(self.Max_iter)
+        Percent_explorations = np.zeros(self.Max_iter)
 
         ############################
         s = solution()
@@ -123,7 +129,12 @@ class CSA:
         while (count < self.Max_iter):  
             if (False):
                 print('Iteration = ', count, ' f(x) = ', fitness)  
+            ## --------- DIVERSITY ZONE ----------
+            metrics.calculateDiversity(population, self.population_size, self.dim, self.objf)
+            Percent_explorations[count] = metrics.percent_exploration
+
             population, best_ind, fitness = self.update_position(population, ap, fL, arrayFitness, best_ind, fitness, proyectSize)
+
             convergence_curve[count] = fitness
             count = count + 1 
 
@@ -133,6 +144,7 @@ class CSA:
         s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
         s.executionTime = timerEnd - timerStart
         s.convergence = convergence_curve
+        s.percent_explorations = Percent_explorations
         s.optimizer = "CSA"
         s.objfname = self.objf.__name__
         s.best = fitness

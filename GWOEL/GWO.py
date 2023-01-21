@@ -28,7 +28,9 @@ class GWO:
         self.Max_iter = Max_iter
         self.method = method
 
-    def optimize(self): #enfocado en la minimizacion por defecto
+    def optimize(self, saveMetrics, fileNameMetrics, minPercentExT): #enfocado en la minimizacion por defecto
+        #if saveMetrics == False --> fileNameMetrics = None
+        #if saveMetrics ==  False --> minPercentExT = -1
 
         metrics = mtclass.Metrics() #objeto de metricas
 
@@ -94,9 +96,10 @@ class GWO:
                             wolfDimensionPosition.append(0)
                 #print(wolfDimensionPosition)
                 Positions.append(wolfDimensionPosition) 
-                #print("que pa", Positions[i], len(Positions[i]))
+                #print("Population: ", Positions[i], len(Positions[i]))
 
         Convergence_curve = np.zeros(self.Max_iter)
+        Percent_explorations = np.zeros(self.Max_iter)
         s = solution()
 
         # Loop counter
@@ -143,10 +146,14 @@ class GWO:
             
 
             ## --------- DIVERSITY ZONE ----------
-            #metrics.calculateDiversity(Positions, self.SearchAgents_no, self.dim, self.objf)
+            metrics.calculateDiversity(Positions, self.SearchAgents_no, self.dim, self.objf)
+            Percent_explorations[l] = metrics.percent_exploration
             
+            #metrics.showMetrics() #---------- MOSTRAR METRICASS ---------
+
             #"Adaptative Parameter", "GAOperators"
-            #metrics.storeMetricsIn("metrics_results.txt", l, fitness, self.SearchAgents_no, proyectSize)
+            if saveMetrics: #if true
+                metrics.storeMetricsIn(fileNameMetrics, l, fitness, self.SearchAgents_no, proyectSize, minPercentExT)
 
 
             ## POSITIONS UPDATE METHODS OF WOLFS
@@ -173,6 +180,7 @@ class GWO:
         s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
         s.executionTime = timerEnd - timerStart
         s.convergence = Convergence_curve
+        s.percent_explorations = Percent_explorations
         s.optimizer = "GWO"
         s.objfname = self.objf.__name__
 

@@ -75,6 +75,8 @@ class GWOEL:
             Positions = teamSizeModel.initPopTeamSizeModel(self.SearchAgents_no, self.lb[0], self.ub[0], proyectSize, self.dim)
 
         Convergence_curve = np.zeros(self.Max_iter)
+        Percent_explorations = np.zeros(self.Max_iter)
+        Percent_explotations = np.zeros(self.Max_iter)
         s = solution()
 
         # Loop counter
@@ -124,6 +126,8 @@ class GWOEL:
 
             ## --------- DIVERSITY ZONE ----------
             metrics.calculateDiversity(Positions, self.SearchAgents_no, self.dim, self.objf)
+            Percent_explorations[l] = metrics.percent_exploration
+            Percent_explotations[l] = metrics.percent_explotation
 
             #"Adaptative Parameter", "GAOperators"
             #metrics.storeMetricsIn("metrics_results.txt", l, fitness, SearchAgents_no, proyectSize)
@@ -159,6 +163,8 @@ class GWOEL:
         s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
         s.executionTime = timerEnd - timerStart
         s.convergence = Convergence_curve
+        s.percent_explorations = Percent_explorations
+        s.percent_explotations = Percent_explotations
         s.optimizer = "GWOEL"
         s.objfname = self.objf.__name__
 

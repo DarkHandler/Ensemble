@@ -7,12 +7,14 @@ Created on Sun May 15 22:37:00 2016
 """
 
 import random
-import numpy
+import numpy as np
 from solution import solution
 import math
 import time
 
 import OptModel.teamSizeModel as teamSizeModel
+
+import metrics.metrics as mtclass
 
 class PSO:
     def __init__(self, objf, lb, ub, dim, PopSize, iters):
@@ -24,8 +26,10 @@ class PSO:
         self.iters = iters
 
     def optimize(self):
-        # PSO parameters
 
+        metrics = mtclass.Metrics() #objeto de metricas
+        
+        # PSO parameters
         Vmax = 6
         wMax = 0.9
         wMin = 0.2
@@ -44,25 +48,26 @@ class PSO:
 
         ######################## Initializations
 
-        vel = numpy.zeros((self.PopSize, self.dim))
+        vel = np.zeros((self.PopSize, self.dim))
 
-        pBestScore = numpy.zeros(self.PopSize)
+        pBestScore = np.zeros(self.PopSize)
         pBestScore.fill(float("inf"))
 
-        pBest = numpy.zeros((self.PopSize, self.dim))
-        gBest = numpy.zeros(self.dim)
+        pBest = np.zeros((self.PopSize, self.dim))
+        gBest = np.zeros(self.dim)
 
         gBestScore = float("inf")
 
         if (self.objf.__name__ != "teamSizeModel"):
-            pos = numpy.zeros((self.PopSize, self.dim))
+            pos = np.zeros((self.PopSize, self.dim))
             for i in range(self.dim):
-                pos[:, i] = numpy.random.uniform(0, 1, self.PopSize) * (self.ub[i] - self.lb[i]) + self.lb[i]
+                pos[:, i] = np.random.uniform(0, 1, self.PopSize) * (self.ub[i] - self.lb[i]) + self.lb[i]
         else:
             pos = teamSizeModel.initPopTeamSizeModel(self.PopSize, self.lb[0], self.ub[0], proyectSize, self.dim)
-            pos = numpy.array(pos)
+            pos = np.array(pos)
 
-        convergence_curve = numpy.zeros(self.iters)
+        convergence_curve = np.zeros(self.iters)
+        Percent_explorations = np.zeros(self.iters)
 
         ############################################
         print('PSO is optimizing  "' + self.objf.__name__ + '"')
@@ -77,10 +82,10 @@ class PSO:
                 if (self.objf.__name__ == "teamSizeModel"):
                     pos = list(pos)
                     teamSizeModel.checkBoundaries(pos[i], proyectSize, self.lb[0], self.ub[0])
-                    pos = numpy.array(pos)
+                    pos = np.array(pos)
                 else:
                     for j in range(self.dim):
-                        pos[i, j] = numpy.clip(pos[i, j], self.lb[j], self.ub[j])
+                        pos[i, j] = np.clip(pos[i, j], self.lb[j], self.ub[j])
                 
                 # Calculate objective function for each particle
                 fitness = self.objf(pos[i, :])
@@ -92,6 +97,10 @@ class PSO:
                 if gBestScore > fitness:
                     gBestScore = fitness
                     gBest = pos[i, :].copy()
+
+            ## --------- DIVERSITY ZONE ----------
+            metrics.calculateDiversity(pos, self.PopSize, self.dim, self.objf)
+            Percent_explorations[l] = metrics.percent_exploration
 
             # Update the W of PSO
             w = wMax - l * ((wMax - wMin) / self.iters)
@@ -127,6 +136,7 @@ class PSO:
         s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
         s.executionTime = timerEnd - timerStart
         s.convergence = convergence_curve
+        s.percent_explorations = Percent_explorations
         s.optimizer = "PSO"
         s.objfname = self.objf.__name__
 

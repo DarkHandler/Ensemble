@@ -6,13 +6,14 @@ Created on Thu May 26 02:00:55 2016
 @modified by: Sebastian Medina
 """
 import math
-import numpy
 import random
 import time
 from solution import solution
 
 import numpy as np
 import OptModel.teamSizeModel as teamSizeModel
+
+import metrics.metrics as mtclass
 
 class BA:
 
@@ -26,6 +27,8 @@ class BA:
 
 
     def optimize(self):
+
+        metrics = mtclass.Metrics() #objeto de metricas
 
         n = self.N
         # Population size
@@ -51,22 +54,24 @@ class BA:
         d = self.dim  # Number of dimensions
 
         # Initializing arrays
-        Q = numpy.zeros(n)  # Frequency
-        v = numpy.zeros((n, d))  # Velocities
+        Q = np.zeros(n)  # Frequency
+        v = np.zeros((n, d))  # Velocities
+
         Convergence_curve = []
+        Percent_explorations = np.zeros(self.Max_iteration)
 
         # Initialize the population/solutions
         if (self.objf.__name__ != "teamSizeModel"):
-            Sol = numpy.zeros((n, d))
+            Sol = np.zeros((n, d))
             for i in range(self.dim):
-                Sol[:, i] = numpy.random.rand(n) * (self.ub[i] - self.lb[i]) + self.lb[i]
+                Sol[:, i] = np.random.rand(n) * (self.ub[i] - self.lb[i]) + self.lb[i]
         else:
             Sol = teamSizeModel.initPopTeamSizeModel(n, self.lb[0], self.ub[0], proyectSize, self.dim)
             Sol = np.array(Sol)
 
-        S = numpy.zeros((n, d))
-        S = numpy.copy(Sol)
-        Fitness = numpy.zeros(n)
+        S = np.zeros((n, d))
+        S = np.copy(Sol)
+        Fitness = np.zeros(n)
 
         # initialize solution for the final results
         s = solution()
@@ -81,7 +86,7 @@ class BA:
             Fitness[i] = self.objf(Sol[i])
 
         # Find the initial best solution and minimum fitness
-        I = numpy.argmin(Fitness)
+        I = np.argmin(Fitness)
         best = Sol[I]
         fmin = min(Fitness)
         
@@ -105,17 +110,17 @@ class BA:
                     Sol = np.array(Sol)
                 else:
                     for j in range(d):
-                        Sol[i, j] = numpy.clip(Sol[i, j], self.lb[j], self.ub[j])
+                        Sol[i, j] = np.clip(Sol[i, j], self.lb[j], self.ub[j])
 
                 # Pulse rate
                 if random.random() > r:
                     if (self.objf.__name__ == "teamSizeModel"):
-                        S[i, :] = np.absolute(best + 0.001 * numpy.random.randn(d))
+                        S[i, :] = np.absolute(best + 0.001 * np.random.randn(d))
                         S = list(S)
                         teamSizeModel.checkBoundaries(S[i], proyectSize, self.lb[0], self.ub[0])
                         S = np.array(S)
                     else:
-                        S[i, :] = best + 0.001 * numpy.random.randn(d)
+                        S[i, :] = best + 0.001 * np.random.randn(d)
 
 
                 # Evaluate new solutions
@@ -123,13 +128,17 @@ class BA:
 
                 # Update if the solution improves
                 if (Fnew <= Fitness[i]) and (random.random() < A):
-                    Sol[i, :] = numpy.copy(S[i, :])
+                    Sol[i, :] = np.copy(S[i, :])
                     Fitness[i] = Fnew
 
                 # Update the current best solution
                 if Fnew <= fmin:
-                    best = numpy.copy(S[i, :])
+                    best = np.copy(S[i, :])
                     fmin = Fnew
+            
+            ## --------- DIVERSITY ZONE ----------
+            metrics.calculateDiversity(S, n, self.dim, self.objf)
+            Percent_explorations[t] = metrics.percent_exploration
 
             # update convergence curve
             Convergence_curve.append(fmin)
@@ -141,6 +150,7 @@ class BA:
         s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
         s.executionTime = timerEnd - timerStart
         s.convergence = Convergence_curve
+        s.percent_explorations = Percent_explorations
         s.optimizer = "BA"
         s.objfname = self.objf.__name__
 

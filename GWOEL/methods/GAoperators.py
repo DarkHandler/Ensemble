@@ -145,7 +145,7 @@ def methodOfGAOperators(lb, ub, population, arrayPopFitness, SearchAgents_no): #
     if offspring2MutationProbability < mutation_prob:
         mutation(wolf_parent2, len(wolf_parent2), lb, ub)
     
-    return wolf_parent1, wolf_parent2 #se aplicaran estos cambio al lobo de la iteracion actual i y al siguiente i+1
+    return wolf_parent1, wolf_parent2 #se aplicaran estos cambios al lobo de la iteracion actual i y al siguiente i+1
     
 def updatePopWithGAMethod(lb, ub, population, arrayPopFitness, SearchAgents_no):
     for i in range(0,SearchAgents_no, 2):
