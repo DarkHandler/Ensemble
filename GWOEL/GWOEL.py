@@ -30,15 +30,13 @@ class GWOEL:
         self.Max_iter = Max_iter              
         self.modelEL = modelEL                  
 
+    def optimize(self, fileNameMetrics = False, minPercentExT = -1): #enfocado en la minimizacion por defecto
 
-    def optimize(self): #enfocado en la minimizacion por defecto
+        if (type(fileNameMetrics) == str) and (minPercentExT < 0 or minPercentExT > 100):
+            raise Exception("minPercentExt must be a number between [0 - 100]")
+
         metrics = mtclass.Metrics() #objeto de metricas
 
-        # Max_iter=1000
-        # lb=-100
-        # ub=100
-        # dim=30
-        # SearchAgents_no=5
 
         proyectSize = 0
         if self.objf.__name__ == "teamSizeModel": #si es el problema que estamos resolviendo de team size model
@@ -76,7 +74,6 @@ class GWOEL:
 
         Convergence_curve = np.zeros(self.Max_iter)
         Percent_explorations = np.zeros(self.Max_iter)
-        Percent_explotations = np.zeros(self.Max_iter)
         s = solution()
 
         # Loop counter
@@ -127,25 +124,24 @@ class GWOEL:
             ## --------- DIVERSITY ZONE ----------
             metrics.calculateDiversity(Positions, self.SearchAgents_no, self.dim, self.objf)
             Percent_explorations[l] = metrics.percent_exploration
-            Percent_explotations[l] = metrics.percent_explotation
 
-            #"Adaptative Parameter", "GAOperators"
-            #metrics.storeMetricsIn("metrics_results.txt", l, fitness, SearchAgents_no, proyectSize)
-
+            ## --- STORE METRICS ---
+            if type(fileNameMetrics) == str: #if true
+                metrics.storeMetricsIn(fileNameMetrics, l, fitness, self.SearchAgents_no, proyectSize, minPercentExT)
 
             ## POSITIONS UPDATE METHODS OF WOLFS WITH EL MODEL
-            namesFeatu = "iteration,fitness,searchAgents_no,proyectSize,percent_exploration,percent_explotation,diversidadHamming,diversidad_Dice,diversidad_Jaccard,diversidad_Kulsinski,diversidad_Rogerstanimoto,diversidad_Russellrao,diversidad_Sokalmichener,diversidad_Yule,diversidad_Sokalsneath,diversidadDimensionWise".split(',')
-            metricsResults = [l, fitness, self.SearchAgents_no, proyectSize, metrics.percent_exploration, metrics.percent_explotation, metrics.diversidadHamming, metrics.diversidad_Dice, metrics.diversidad_Jaccard, metrics.diversidad_Kulsinski, metrics.diversidad_Rogerstanimoto, metrics.diversidad_Russellrao, metrics.diversidad_Sokalmichener, metrics.diversidad_Yule, metrics.diversidad_Sokalsneath, metrics.diversidadDimensionWise]
+            namesFeatu = "iteration,fitness,searchAgents_no,proyectSize,percent_exploration,percent_exploitation,diversidadHamming,diversidad_Dice,diversidad_Jaccard,diversidad_Kulsinski,diversidad_Rogerstanimoto,diversidad_Russellrao,diversidad_Sokalmichener,diversidad_Yule,diversidad_Sokalsneath,diversidadDimensionWise".split(',')
+            metricsResults = [l, fitness, self.SearchAgents_no, proyectSize, metrics.percent_exploration, metrics.percent_exploitation, metrics.diversidadHamming, metrics.diversidad_Dice, metrics.diversidad_Jaccard, metrics.diversidad_Kulsinski, metrics.diversidad_Rogerstanimoto, metrics.diversidad_Russellrao, metrics.diversidad_Sokalmichener, metrics.diversidad_Yule, metrics.diversidad_Sokalsneath, metrics.diversidadDimensionWise]
 
             pdMetricResult = pd.DataFrame(data=np.array([metricsResults]), columns=namesFeatu)
             prediction = self.modelEL.predict(pdMetricResult)
             
-            if prediction[0] == "explotation":
-                #print("xpT GAOPERATORS")
-                GAoperators.updatePopWithGAMethod(self.lb, self.ub, Positions, arrayPopFitness, self.SearchAgents_no) #funcionando explotacion
-            else:
-                #print("xpL AdaptativeParam")
+            if prediction[0] == "exploitation": #adaParam mecanismo para exploTacion
+                #print("xpT AdaptativeParam")
                 adaptativeParam.adaptativeControlParameter_a_UpdateMethod(l, self.Max_iter, self.SearchAgents_no, Positions, Alpha_pos, Delta_pos, Beta_pos, self.objf.__name__) #funcionando exploracion
+            else: #GAoperators es un mecanismo para realizar exploRacion
+                #print("xpL GAOPERATORS")
+                GAoperators.updatePopWithGAMethod(self.lb, self.ub, Positions, arrayPopFitness, self.SearchAgents_no) #funcionando explotacion
 
             #adaptativeParam.linealUpdateMethod(SearchAgents_no, Max_iter, Positions, l, Alpha_pos, Delta_pos, Beta_pos, objf.__name__) #funcionando este es el clasico que hay que eliminar
             
@@ -164,7 +160,6 @@ class GWOEL:
         s.executionTime = timerEnd - timerStart
         s.convergence = Convergence_curve
         s.percent_explorations = Percent_explorations
-        s.percent_explotations = Percent_explotations
         s.optimizer = "GWOEL"
         s.objfname = self.objf.__name__
 

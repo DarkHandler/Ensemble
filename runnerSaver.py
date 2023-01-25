@@ -38,55 +38,54 @@ class RunnerSingleton(metaclass=SingletonMeta):
     def createDatasetMetricsGWO(self): #Paso 1 para realizar experimento: GENERAR DATASET CON METRICAS DE GWO 
         adapParam = "Adaptative Parameter"
         GAop = "GAOperators"
-        saveMetrics = True
-        minPercentExT = 70 #minimun percent of ExploTation
+        minPercentExT = 70 #minimun percent of exploitation
         fileNameMetrics = "metrics_results_" + str(minPercentExT) + ".txt"
 
         print("-----INICIO-----")
         #6 lobos y 250
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 6, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 6, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 6, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 6, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 6, 250, adapParam).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 6, 250, adapParam).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 6, 250, adapParam).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 6, 250, adapParam).optimize(fileNameMetrics, minPercentExT)
 
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 6, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 6, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 6, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 6, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 6, 250, GAop).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 6, 250, GAop).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 6, 250, GAop).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 6, 250, GAop).optimize(fileNameMetrics, minPercentExT)
 
         #12 lobos y 250
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 12, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 12, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 12, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 12, 250, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 12, 250, adapParam).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 12, 250, adapParam).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 12, 250, adapParam).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 12, 250, adapParam).optimize(fileNameMetrics, minPercentExT)
 
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 12, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 12, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 12, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 12, 250, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 12, 250, GAop).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 12, 250, GAop).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 12, 250, GAop).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 12, 250, GAop).optimize(fileNameMetrics, minPercentExT)
 
 
         #6 lobos y 500
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 6, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 6, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 6, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 6, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 6, 500, adapParam).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 6, 500, adapParam).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 6, 500, adapParam).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 6, 500, adapParam).optimize(fileNameMetrics, minPercentExT)
 
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 6, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 6, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 6, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 6, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 6, 500, GAop).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 6, 500, GAop).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 6, 500, GAop).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 6, 500, GAop).optimize(fileNameMetrics, minPercentExT)
 
         #12 lobos y 500
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 12, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 12, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 12, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 12, 500, adapParam).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 12, 500, adapParam).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 12, 500, adapParam).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 12, 500, adapParam).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 12, 500, adapParam).optimize(fileNameMetrics, minPercentExT)
 
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 12, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 12, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 12, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
-        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 12, 500, GAop).optimize(saveMetrics, fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 50, 12, 500, GAop).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 100, 12, 500, GAop).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 150, 12, 500, GAop).optimize(fileNameMetrics, minPercentExT)
+        moduleGWO.GWO(moduleTSM.teamSizeModel, 3, 18, 200, 12, 500, GAop).optimize(fileNameMetrics, minPercentExT)
         print("-----FIN-----")
 
 
@@ -108,17 +107,17 @@ class RunnerSingleton(metaclass=SingletonMeta):
         elif algo == "FA":
             x = moduleFA.FA(getattr(optModel, function_name), lb, ub, dim, popSize, Iter).optimize()
         elif algo == "GWO":
-            #adapParam = "Adaptative Parameter"
-            #GAop = "GAOperators"
+            #ori = "Adaptative Parameter"
+            #ori = "GAOperators"
             ori = "original"
-            x = moduleGWO.GWO(getattr(optModel, function_name), lb, ub, dim, popSize, Iter, ori).optimize(False, None, -1) #None is the param fileNameMetrics
+            x = moduleGWO.GWO(getattr(optModel, function_name), lb, ub, dim, popSize, Iter, ori).optimize()
         elif algo == "WOA":
             x = moduleWOA.WOA(getattr(optModel, function_name), lb, ub, dim, popSize, Iter).optimize()
         elif algo == "CSA":
             x = moduleCSA.CSA(getattr(optModel, function_name), lb, ub, dim, popSize, Iter).optimize()
         elif algo == "GWOEL":
-            if type(modelEL) == int: # if isn't a classifiers.ModuleEL class, initialize it just one time
-                modelEL = classifiers.ModuleEL("metrics_results_70.txt", "modelEL_70").getELModel()    #cargar el Ensemble Learning Model
+            if type(modelEL) == int: # if isn't a classifiers. The ModuleEL class is initialized just one time
+                modelEL = classifiers.ModuleEL("metrics_results_70.txt", "modelEL_70").getELModel()    #load Ensemble Learning Model
                 
             x = moduleGWOEL.GWOEL(getattr(optModel, function_name), lb, ub, dim, popSize, Iter, modelEL).optimize()
         elif algo == "DE":
@@ -218,7 +217,7 @@ class RunnerSingleton(metaclass=SingletonMeta):
                             writer.writerow(a)
                         out.close()
 
-                        #SAVE PERCENTEGE EXPLORATION EXPLOTATION
+                        #SAVE PERCENTEGE EXPLORATION exploitation
                         percent_explorations[k] = x.percent_explorations
                         
                         ExportToFile = results_directory + "experiment_eReT_det.csv"
@@ -263,7 +262,7 @@ class RunnerSingleton(metaclass=SingletonMeta):
                         writer.writerow(a)
                     out.close()
 
-                    #SAVE SUMMARY OF ALL RUNS: PERCENTEGE EXPLORATION EXPLOTATION
+                    #SAVE SUMMARY OF ALL RUNS: PERCENTEGE EXPLORATION exploitation
                     ExportToFile = results_directory + "experiment_sumry_eReT.csv"
 
                     with open(ExportToFile, "a", newline="\n") as out:

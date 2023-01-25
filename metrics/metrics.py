@@ -9,7 +9,7 @@ class Metrics:
     self.div_max = -1 #valor máximo de diversidad encontrado en todo el proceso de optimización para dimension-wise.
 
     self.percent_exploration = -1
-    self.percent_explotation = -1
+    self.percent_exploitation = -1
     self.diversidadHamming = -1
     self.diversidad_Dice = -1
     self.diversidad_Jaccard = -1
@@ -278,7 +278,7 @@ class Metrics:
 
     #RECORDAR QUE YA SABEMOS QUE PARAMETROS DE METRICA DE DIMENSION WISE DEBE ESTAR PARA QUE ESTE EN PORCENTAJE DE FASE DE EXPLOTACION O EXPLORACION
     self.percent_exploration = (self.diversidadDimensionWise / self.div_max) * 100
-    self.percent_explotation = (math.fabs(self.diversidadDimensionWise - self.div_max) / self.div_max) * 100
+    self.percent_exploitation = (math.fabs(self.diversidadDimensionWise - self.div_max) / self.div_max) * 100
 
     #AQUI DEPENDIENDO DEL PORCENTAJE PODRIA DECIR SI HACER BALANCE HACIA EXPLORACION O EXPLOTACION
         
@@ -299,29 +299,29 @@ class Metrics:
     print(f'Diversidad de Dim-wise: {self.diversidadDimensionWise}')
 
     print(f'Porcentaje exploracion: {self.percent_exploration}')
-    print(f'Porcentaje explotacion: {self.percent_explotation}')
+    print(f'Porcentaje explotacion: {self.percent_exploitation}')
     print("F----------------------------------------------------A>")
 
 
   # -------------------- STORE METRICS ---------------
   def storeMetricsIn(self, filename, l, fitness, searchAgents_no, proyectSize, minPercentExT):
     if not os.path.exists(filename):
-      header = "iteration,fitness,searchAgents_no,proyectSize,percent_exploration,percent_explotation,diversidadHamming,diversidad_Dice,diversidad_Jaccard,diversidad_Kulsinski,diversidad_Rogerstanimoto,diversidad_Russellrao,diversidad_Sokalmichener,diversidad_Yule,diversidad_Sokalsneath,diversidadDimensionWise,method\n"
+      header = "iteration,fitness,searchAgents_no,proyectSize,percent_exploration,percent_exploitation,diversidadHamming,diversidad_Dice,diversidad_Jaccard,diversidad_Kulsinski,diversidad_Rogerstanimoto,diversidad_Russellrao,diversidad_Sokalmichener,diversidad_Yule,diversidad_Sokalsneath,diversidadDimensionWise,method\n"
       f = open(filename, "a")
       f.write(header)
     else:
       f = open(filename, "a")
 
-    if self.percent_explotation < minPercentExT: #si es menor al porcentaje minimo de explotation se debe realizar explotacion  
+    if self.percent_exploitation < minPercentExT: #si es menor al porcentaje minimo de exploitation se debe realizar explotacion  
     #para nuestro caso en el primer exp, se uso un 60% debido a que el resultado de las métricas no llegan a los 90 de exT
-      method = "explotation" #explotation para que suba su porcentaje de exploration acercandose a 10
+      method = "exploitation" #exploitation para que suba su porcentaje de exploration acercandose a 10
     else:
-      method = "exploration" #exploration para que baje el porcentaje de explotation acercandose a 90
+      method = "exploration" #exploration para que baje el porcentaje de exploitation acercandose a 90
 
-    #format --> in one row --> iteration, fitness, searchAgents_no, proyectSize, percent_exploration, percent_explotation, diversidadHamming, diversidad_Dice, diversidad_Jaccard, 
+    #format --> in one row --> iteration, fitness, searchAgents_no, proyectSize, percent_exploration, percent_exploitation, diversidadHamming, diversidad_Dice, diversidad_Jaccard, 
                               #diversidad_Kulsinski, diversidad_Rogerstanimoto, diversidad_Russellrao, diversidad_Sokalmichener, diversidad_Yule, 
                               #diversidad_Sokalsneath, diversidadDimensionWise, method (label)
-    f.write(str(l)+","+str(fitness)+","+str(searchAgents_no)+","+str(proyectSize)+","+str(self.percent_exploration)+","+str(self.percent_explotation)+","+str(self.diversidadHamming)+","+str(self.diversidad_Dice)+","+str(self.diversidad_Jaccard)+","+str(self.diversidad_Kulsinski)+","+str(self.diversidad_Rogerstanimoto)+","+str(self.diversidad_Russellrao)+","+str(self.diversidad_Sokalmichener)+","+str(self.diversidad_Yule)+","+str(self.diversidad_Sokalsneath)+","+str(self.diversidadDimensionWise)+","+method+"\n")
+    f.write(str(l)+","+str(fitness)+","+str(searchAgents_no)+","+str(proyectSize)+","+str(self.percent_exploration)+","+str(self.percent_exploitation)+","+str(self.diversidadHamming)+","+str(self.diversidad_Dice)+","+str(self.diversidad_Jaccard)+","+str(self.diversidad_Kulsinski)+","+str(self.diversidad_Rogerstanimoto)+","+str(self.diversidad_Russellrao)+","+str(self.diversidad_Sokalmichener)+","+str(self.diversidad_Yule)+","+str(self.diversidad_Sokalsneath)+","+str(self.diversidadDimensionWise)+","+method+"\n")
     f.close()
 
 

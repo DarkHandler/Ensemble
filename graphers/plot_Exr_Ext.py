@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-#for each optimizer create a plot of iterations and exploration-explotation balance
+#for each optimizer create a plot of iterations and exploration-exploitation balance
 def run(results_directory, optimizer, objectivefunc, Iterations):
     plt.ioff()
     fileResultsData = pd.read_csv(results_directory + "/experiment_sumry_eReT.csv")
@@ -24,7 +24,7 @@ def run(results_directory, optimizer, objectivefunc, Iterations):
             ]
             row = row.iloc[:, 2 + startIteration :]
             plt.plot(allGenerations, row.values.tolist()[0], label = "Exploration(Avg " + str(np.average(row.values.tolist()[0])) + ")")
-            plt.plot(allGenerations, (100 - np.array(row.values.tolist()[0])), label = "Explotation (Avg " + str(np.average((100 - np.array(row.values.tolist()[0])))) + ")")
+            plt.plot(allGenerations, (100 - np.array(row.values.tolist()[0])), label = "Exploitation (Avg " + str(np.average((100 - np.array(row.values.tolist()[0])))) + ")")
             plt.xlabel("Iterations")
             plt.ylabel("Percentage")
             plt.legend(loc="upper right", bbox_to_anchor = (1.2, 1.02))

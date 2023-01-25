@@ -47,7 +47,7 @@ class ModuleEL:
             ('modelGNB', modelGNB)
             ], voting = 'soft') #uso soft para una mejor precision y -1 para todos los procesadores
 
-        #-Los labels deben tener como minimo dos clases, pero al ser 90% explotation, no se me esta generando y viendo ninguna fase de exploracion
+        #-Los labels deben tener como minimo dos clases, pero al ser 90% exploitation, no se me esta generando y viendo ninguna fase de exploracion
         #labels = np.unique(y_train) ##---> aqui puede verse el error cuando probamos esta experimentacion 
         #print("NUMERO DE LABELS--: ", labels)
         

@@ -6,7 +6,6 @@ Created on November 2022
 @modified by: Sebastian Medina
 """
 
-import random
 import numpy as np
 import math
 from solution import solution
@@ -28,9 +27,10 @@ class GWO:
         self.Max_iter = Max_iter
         self.method = method
 
-    def optimize(self, saveMetrics, fileNameMetrics, minPercentExT): #enfocado en la minimizacion por defecto
-        #if saveMetrics == False --> fileNameMetrics = None
-        #if saveMetrics ==  False --> minPercentExT = -1
+    def optimize(self, fileNameMetrics = False, minPercentExT = -1): #enfocado en la minimizacion por defecto
+
+        if (type(fileNameMetrics) == str) and (minPercentExT < 0 or minPercentExT > 100):
+            raise Exception("minPercentExt must be a number between [0 - 100]")
 
         metrics = mtclass.Metrics() #objeto de metricas
 
@@ -152,9 +152,8 @@ class GWO:
             #metrics.showMetrics() #---------- MOSTRAR METRICASS ---------
 
             #"Adaptative Parameter", "GAOperators"
-            if saveMetrics: #if true
+            if type(fileNameMetrics) == str: #if true
                 metrics.storeMetricsIn(fileNameMetrics, l, fitness, self.SearchAgents_no, proyectSize, minPercentExT)
-
 
             ## POSITIONS UPDATE METHODS OF WOLFS
             if self.method == "GAOperators":
