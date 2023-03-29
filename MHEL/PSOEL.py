@@ -11,21 +11,29 @@ import numpy as np
 from solution import solution
 import math
 import time
+import pandas as pd
+
+import methods.GAoperators as GAoperators
 
 import OptModel.teamSizeModel as teamSizeModel
 
 import metrics.metrics as mtclass
 
-class PSO:
-    def __init__(self, objf, lb, ub, dim, PopSize, iters):
+class PSOEL:
+    def __init__(self, objf, lb, ub, dim, PopSize, iters, modelEL):
         self.objf = objf
         self.lb = lb
         self.ub = ub
         self.dim = dim
         self.PopSize= PopSize
         self.iters = iters
+        self.modelEL = modelEL  
 
-    def optimize(self):
+    def optimize(self, fileNameMetrics = False, minPercentExT = -1):
+
+        #Save metrics condition
+        if (type(fileNameMetrics) == str) and (minPercentExT < 0 or minPercentExT > 100):
+            raise Exception("minPercentExt must be a number between [0 - 100]")
 
         metrics = mtclass.Metrics() #objeto de metricas
         
@@ -47,6 +55,9 @@ class PSO:
             self.dim = math.floor(self.dim/3) #no es necesario debido a que si no se estaran creando obligatoriamente variables con rango 3 a 17 
 
         ######################## Initializations
+
+        #array of fitness, size of search agents
+        arrayPopFitness = np.zeros(self.PopSize)
 
         vel = np.zeros((self.PopSize, self.dim))
 
@@ -70,7 +81,7 @@ class PSO:
         Percent_explorations = np.zeros(self.iters)
 
         ############################################
-        print('PSO is optimizing  "' + self.objf.__name__ + '"')
+        print('PSOEL is optimizing  "' + self.objf.__name__ + '"')
 
         timerStart = time.time()
         s.startTime = time.strftime("%Y-%m-%d-%H-%M-%S")
@@ -89,6 +100,7 @@ class PSO:
                 
                 # Calculate objective function for each particle
                 fitness = self.objf(pos[i, :])
+                arrayPopFitness[i] = fitness
 
                 if pBestScore[i] > fitness:
                     pBestScore[i] = fitness
@@ -102,26 +114,43 @@ class PSO:
             metrics.calculateDiversity(pos, self.PopSize, self.dim, self.objf)
             Percent_explorations[l] = metrics.percent_exploration
 
-            # Update the W of PSO
-            w = wMax - l * ((wMax - wMin) / self.iters)
+            ## --- STORE METRICS ---
+            if type(fileNameMetrics) == str: #if true
+                metrics.storeMetricsIn(fileNameMetrics, l, gBestScore, self.PopSize, proyectSize, minPercentExT)
 
-            for i in range(0, self.PopSize):
-                for j in range(0, self.dim):
-                    r1 = random.random()
-                    r2 = random.random()
-                    vel[i, j] = (
-                        w * vel[i, j]
-                        + c1 * r1 * (pBest[i, j] - pos[i, j])
-                        + c2 * r2 * (gBest[j] - pos[i, j])
-                    )
+            ## POSITIONS UPDATE METHODS OF AGENTS WITH Ensemble Learning MODEL
+            namesFeatu = "iteration,fitness,searchAgents_no,proyectSize,percent_exploration,percent_exploitation,diversidadHamming,diversidad_Dice,diversidad_Jaccard,diversidad_Kulsinski,diversidad_Rogerstanimoto,diversidad_Russellrao,diversidad_Sokalmichener,diversidad_Yule,diversidad_Sokalsneath,diversidadDimensionWise".split(',')
+            metricsResults = [l, gBestScore, self.PopSize, proyectSize, metrics.percent_exploration, metrics.percent_exploitation, metrics.diversidadHamming, metrics.diversidad_Dice, metrics.diversidad_Jaccard, metrics.diversidad_Kulsinski, metrics.diversidad_Rogerstanimoto, metrics.diversidad_Russellrao, metrics.diversidad_Sokalmichener, metrics.diversidad_Yule, metrics.diversidad_Sokalsneath, metrics.diversidadDimensionWise]
 
-                    if vel[i, j] > Vmax:
-                        vel[i, j] = Vmax
+            pdMetricResult = pd.DataFrame(data=np.array([metricsResults]), columns=namesFeatu)
+            prediction = self.modelEL.predict(pdMetricResult)
+            
+            if prediction[0] == "exploitation": #mechanism to exploTation
+                # Update the W of PSO
+                w = wMax - l * ((wMax - wMin) / self.iters)
 
-                    if vel[i, j] < -Vmax:
-                        vel[i, j] = -Vmax
+                for i in range(0, self.PopSize):
+                    for j in range(0, self.dim):
+                        r1 = random.random()
+                        r2 = random.random()
+                        vel[i, j] = (
+                            w * vel[i, j]
+                            + c1 * r1 * (pBest[i, j] - pos[i, j])
+                            + c2 * r2 * (gBest[j] - pos[i, j])
+                        )
 
-                    pos[i, j] = pos[i, j] + vel[i, j]
+                        if vel[i, j] > Vmax:
+                            vel[i, j] = Vmax
+
+                        if vel[i, j] < -Vmax:
+                            vel[i, j] = -Vmax
+
+                        pos[i, j] = pos[i, j] + vel[i, j]
+
+            else: #GAoperators mechanism to exploRation
+                #print("xpL GAOPERATORS")
+                GAoperators.updatePopWithGAMethod(self.lb, self.ub, pos, arrayPopFitness, self.PopSize) #funcionando explotacion
+
 
             convergence_curve[l] = gBestScore
 
@@ -137,7 +166,7 @@ class PSO:
         s.executionTime = timerEnd - timerStart
         s.convergence = convergence_curve
         s.percent_explorations = Percent_explorations
-        s.optimizer = "PSO"
+        s.optimizer = "PSOEL"
         s.objfname = self.objf.__name__
         s.best = gBestScore
         s.bestIndividual = gBest

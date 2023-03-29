@@ -9,9 +9,7 @@ import graphers.plot_Exr_Ext as percntexRexT_plot
 from pathlib import Path
 
 #INTERNAL LIBRARIES
-import GWOEL.GWO as moduleGWO
-import GWOEL.GWOEL as moduleGWOEL
-
+import x_algorithms_comp.GWO as moduleGWO
 import x_algorithms_comp.BA as moduleBA
 import x_algorithms_comp.DE as moduleDE
 import x_algorithms_comp.FA as moduleFA
@@ -19,7 +17,17 @@ import x_algorithms_comp.PSO as modulePSO
 import x_algorithms_comp.WOA as moduleWOA
 import x_algorithms_comp.CSA as moduleCSA
 
-import GWOEL.ML_model.ML_classifiers as classifiers
+#WITH Ensemble Learning
+import MHEL.GWOEL as moduleGWOEL
+import MHEL.BAEL as moduleBAEL
+import MHEL.CSAEL as moduleCSAEL
+import MHEL.DEEL as moduleDEEL
+import MHEL.FAEL as moduleFAEL
+import MHEL.PSOEL as modulePSOEL
+import MHEL.WOAEL as moduleWOAEL
+
+
+import MachineLearning.ML_classifiers as classifiers
 
 import OptModel.teamSizeModel as moduleTSM
 import OptModel.benchmark_functions as bf
@@ -35,7 +43,7 @@ class SingletonMeta(type):
 
 class RunnerSingleton(metaclass=SingletonMeta):
     
-    def createDatasetMetricsGWO(self): #Paso 1 para realizar experimento: GENERAR DATASET CON METRICAS DE GWO 
+    def createDatasetMetrics(self): #Paso 1 para realizar experimento: GENERAR DATASET CON METRICAS DE GWO 
         adapParam = "Adaptative Parameter"
         GAop = "GAOperators"
         minPercentExT = 70 #minimun percent of exploitation
@@ -115,13 +123,36 @@ class RunnerSingleton(metaclass=SingletonMeta):
             x = moduleWOA.WOA(getattr(optModel, function_name), lb, ub, dim, popSize, Iter).optimize()
         elif algo == "CSA":
             x = moduleCSA.CSA(getattr(optModel, function_name), lb, ub, dim, popSize, Iter).optimize()
+        elif algo == "DE":
+            x = moduleDE.DE(getattr(optModel, function_name), lb, ub, dim, popSize, Iter).optimize()
         elif algo == "GWOEL":
             if type(modelEL) == int: # if isn't a classifiers. The ModuleEL class is initialized just one time
                 modelEL = classifiers.ModuleEL("metrics_results_70.txt", "modelEL_70").getELModel()    #load Ensemble Learning Model
-                
             x = moduleGWOEL.GWOEL(getattr(optModel, function_name), lb, ub, dim, popSize, Iter, modelEL).optimize()
-        elif algo == "DE":
-            x = moduleDE.DE(getattr(optModel, function_name), lb, ub, dim, popSize, Iter).optimize()
+        elif algo == "BAEL":
+            if type(modelEL) == int: # if isn't a classifiers. The ModuleEL class is initialized just one time
+                modelEL = classifiers.ModuleEL("metrics_results_70.txt", "modelEL_70").getELModel()    #load Ensemble Learning Model
+            x = moduleBAEL.BAEL(getattr(optModel, function_name), lb, ub, dim, popSize, Iter, modelEL).optimize()   
+        elif algo == "CSAEL":
+            if type(modelEL) == int: # if isn't a classifiers. The ModuleEL class is initialized just one time
+                modelEL = classifiers.ModuleEL("metrics_results_70.txt", "modelEL_70").getELModel()    #load Ensemble Learning Model
+            x = moduleCSAEL.CSAEL(getattr(optModel, function_name), lb, ub, dim, popSize, Iter, modelEL).optimize()   
+        elif algo == "DEEL":
+            if type(modelEL) == int: # if isn't a classifiers. The ModuleEL class is initialized just one time
+                modelEL = classifiers.ModuleEL("metrics_results_70.txt", "modelEL_70").getELModel()    #load Ensemble Learning Model
+            x = moduleDEEL.DEEL(getattr(optModel, function_name), lb, ub, dim, popSize, Iter, modelEL).optimize()  
+        elif algo == "FAEL":
+            if type(modelEL) == int: # if isn't a classifiers. The ModuleEL class is initialized just one time
+                modelEL = classifiers.ModuleEL("metrics_results_70.txt", "modelEL_70").getELModel()    #load Ensemble Learning Model
+            x = moduleFAEL.FAEL(getattr(optModel, function_name), lb, ub, dim, popSize, Iter, modelEL).optimize()    
+        elif algo == "PSOEL":
+            if type(modelEL) == int: # if isn't a classifiers. The ModuleEL class is initialized just one time
+                modelEL = classifiers.ModuleEL("metrics_results_70.txt", "modelEL_70").getELModel()    #load Ensemble Learning Model
+            x = modulePSOEL.PSOEL(getattr(optModel, function_name), lb, ub, dim, popSize, Iter, modelEL).optimize()    
+        elif algo == "WOAEL":
+            if type(modelEL) == int: # if isn't a classifiers. The ModuleEL class is initialized just one time
+                modelEL = classifiers.ModuleEL("metrics_results_70.txt", "modelEL_70").getELModel()    #load Ensemble Learning Model
+            x = moduleWOAEL.WOAEL(getattr(optModel, function_name), lb, ub, dim, popSize, Iter, modelEL).optimize()    
         else:
             return None
         return x
@@ -182,6 +213,8 @@ class RunnerSingleton(metaclass=SingletonMeta):
 
         #Variable to save permanentebly and used only when GWOEL is setted
         modelEL = -1
+        bestVector = None #save best vector
+        bestFitness = None #save best fitness
 
         for l in range(0, Iterations):
             CnvgHeader.append("Iter" + str(l + 1))
@@ -194,7 +227,13 @@ class RunnerSingleton(metaclass=SingletonMeta):
                 for k in range(0, NumOfRuns):
                     func_details = bf.getFunctionDetails(objectivefunc[j])
                     x = self.selector(optimizer[i], func_details, PopulationSize, Iterations, modelEL)
+                    
+                    #DELETE AFTER USE
+                    if( bestFitness == None or x.best < bestFitness):
+                        bestFitness = x.best
+                        bestVector = x.bestIndividual
                     convergence[k] = x.convergence
+                    
 
                     optimizerName = x.optimizer
                     objfname = x.objfname
@@ -294,6 +333,8 @@ class RunnerSingleton(metaclass=SingletonMeta):
 
         #export plot
         percntexRexT_plot.run(results_directory, optimizer, objectivefunc, Iterations)
+
+        print(f"Vector best solution: {bestVector}, Score fitness: {bestFitness}") #DELETE IF YOU DONT WANT TO SHOW THE RESULT
 
         if Flag == False:  # Faild to run at least one experiment
             print(

@@ -9,24 +9,32 @@ import math
 import random
 import time
 from solution import solution
-
 import numpy as np
+import pandas as pd
+
+import methods.GAoperators as GAoperators
+
 import OptModel.teamSizeModel as teamSizeModel
 
 import metrics.metrics as mtclass
 
-class BA:
+class BAEL:
 
-    def __init__(self, objf, lb, ub, dim, N, Max_iteration):
+    def __init__(self, objf, lb, ub, dim, N, Max_iteration, modelEL):
         self.objf = objf
         self.lb = lb
         self.ub = ub
         self.dim = dim
         self.N= N
         self.Max_iteration = Max_iteration
+        self.modelEL = modelEL    
 
 
-    def optimize(self):
+    def optimize(self, fileNameMetrics = False, minPercentExT = -1):
+
+        #Save metrics condition
+        if (type(fileNameMetrics) == str) and (minPercentExT < 0 or minPercentExT > 100):
+            raise Exception("minPercentExt must be a number between [0 - 100]")
 
         metrics = mtclass.Metrics() #objeto de metricas
 
@@ -75,7 +83,7 @@ class BA:
 
         # initialize solution for the final results
         s = solution()
-        print('BAT is optimizing  "' + self.objf.__name__ + '"')
+        print('BAEL is optimizing  "' + self.objf.__name__ + '"')
 
         # Initialize timer for the experiment
         timerStart = time.time()
@@ -112,17 +120,41 @@ class BA:
                     for j in range(d):
                         Sol[i, j] = np.clip(Sol[i, j], self.lb[j], self.ub[j])
 
-                # Pulse rate
-                if random.random() > r:
-                    if (self.objf.__name__ == "teamSizeModel"):
-                        S[i, :] = np.absolute(best + 0.001 * np.random.randn(d))
-                        S = list(S)
-                        teamSizeModel.checkBoundaries(S[i], proyectSize, self.lb[0], self.ub[0])
-                        S = np.array(S)
-                    else:
-                        S[i, :] = best + 0.001 * np.random.randn(d)
+
+            ## --------- DIVERSITY ZONE ----------
+            metrics.calculateDiversity(S, n, self.dim, self.objf)
+            Percent_explorations[t] = metrics.percent_exploration
 
 
+            ## --- STORE METRICS ---
+            if type(fileNameMetrics) == str: #if true
+                metrics.storeMetricsIn(fileNameMetrics, t, fmin, self.N, proyectSize, minPercentExT)
+
+
+            ## POSITIONS UPDATE METHODS OF AGENTS WITH Ensemble Learning MODEL
+            namesFeatu = "iteration,fitness,searchAgents_no,proyectSize,percent_exploration,percent_exploitation,diversidadHamming,diversidad_Dice,diversidad_Jaccard,diversidad_Kulsinski,diversidad_Rogerstanimoto,diversidad_Russellrao,diversidad_Sokalmichener,diversidad_Yule,diversidad_Sokalsneath,diversidadDimensionWise".split(',')
+            metricsResults = [t, fmin, self.N, proyectSize, metrics.percent_exploration, metrics.percent_exploitation, metrics.diversidadHamming, metrics.diversidad_Dice, metrics.diversidad_Jaccard, metrics.diversidad_Kulsinski, metrics.diversidad_Rogerstanimoto, metrics.diversidad_Russellrao, metrics.diversidad_Sokalmichener, metrics.diversidad_Yule, metrics.diversidad_Sokalsneath, metrics.diversidadDimensionWise]
+
+            pdMetricResult = pd.DataFrame(data=np.array([metricsResults]), columns=namesFeatu)
+            prediction = self.modelEL.predict(pdMetricResult)
+                
+            if prediction[0] == "exploitation": #ORIGINAL mechanism to exploTacion
+                for i in range(0, n):
+                    # Pulse rate
+                    if random.random() > r:
+                        if (self.objf.__name__ == "teamSizeModel"):
+                            S[i, :] = np.absolute(best + 0.001 * np.random.randn(d))
+                            S = list(S)
+                            teamSizeModel.checkBoundaries(S[i], proyectSize, self.lb[0], self.ub[0])
+                            S = np.array(S)
+                        else:
+                            S[i, :] = best + 0.001 * np.random.randn(d)
+
+            else: #GAoperators mechanism to exploRation
+                #print("xpL GAOPERATORS")
+                GAoperators.updatePopWithGAMethod(self.lb, self.ub, Sol, Fitness, self.N) #funcionando explotacion
+
+            for i in range(0, n):
                 # Evaluate new solutions
                 Fnew = self.objf(S[i, :])
 
@@ -135,10 +167,6 @@ class BA:
                 if Fnew <= fmin:
                     best = np.copy(S[i, :])
                     fmin = Fnew
-            
-            ## --------- DIVERSITY ZONE ----------
-            metrics.calculateDiversity(S, n, self.dim, self.objf)
-            Percent_explorations[t] = metrics.percent_exploration
 
             # update convergence curve
             Convergence_curve.append(fmin)
@@ -151,7 +179,7 @@ class BA:
         s.executionTime = timerEnd - timerStart
         s.convergence = Convergence_curve
         s.percent_explorations = Percent_explorations
-        s.optimizer = "BA"
+        s.optimizer = "BAEL"
         s.objfname = self.objf.__name__
         s.best = fmin
         s.bestIndividual = best

@@ -7,9 +7,9 @@ import runnerSaver as rs
     #limite inferior, limite superior, dimension, tamano poblacion, numero de iteraciones
 
 # Optimizers
-optimizer = ["GWO","FA","GWOEL","PSO","BA","WOA","CSA","DE"] # "PSO","BA","FA","GWO","GWOEL","WOA","CSA","DE"
+#optimizer = ["GWO","FA","GWOEL","PSO","BA","WOA","CSA","DE"] # "PSO","BA","FA","GWO","GWOEL","WOA","CSA","DE"
 
-#optimizer = ["GWOEL"] #experimentacion ACTUALL
+optimizer = ["GWO","GWOEL","BA","CSA","DE","FA","PSO","WOA"] #experimentacion With Ensemble Learning
 
 # Benchmark function"
 # "F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12","F13","F14","F15","F16","F17","F18","F19"
@@ -28,8 +28,10 @@ params = {"PopulationSize": 6, "Iterations": 1500}
 runner = rs.RunnerSingleton()
 
 # --- GENERATE DATASET WITH METRICS OF GWO ---
-#runner.createDatasetMetricsGWO()
+#runner.createDatasetMetrics()
 
 # ------- EXECUTE OPTIMIZATION --------
 runner.run(optimizer, objectivefunc, NumOfRuns, params)
 
+
+#PAPER EL-ACCESS --> poner todos estos algoritmos pero hibridizados, sin la CEC

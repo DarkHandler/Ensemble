@@ -16,6 +16,6 @@ def getFunctionDetails(a):
     param = {
         "F1": ["F1", -100, 100, 30],
         "F6": ["F6", -100, 100, 30],
-        "teamSizeModel":["teamSizeModel", 3, 18, 50],
+        "teamSizeModel":["teamSizeModel", 3, 18, 200],
     }
     return param.get(a, "nothing")

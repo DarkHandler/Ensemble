@@ -157,6 +157,7 @@ class DE:
         s.percent_explorations = Percent_explorations
         s.optimizer = "DE"
         s.objfname = self.objf.__name__
+        s.bestIndividual = s.leader_solution 
 
         # return solution
         return s
